@@ -91,9 +91,6 @@ Acesse: [http://localhost:8080](http://localhost:8080)
 | Nome | GitHub |
 |------|--------|
 | Miguel Luiz | [@ZeZoKngg](https://github.com/ZeZoKngg) |
-| Murilo | — |
-| João Victor | — |
-| João Felipe | — |
 
 ---
 
