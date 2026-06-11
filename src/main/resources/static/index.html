@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Meu SUS Digital</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --blue: #1565C0; --blue2: #1E88E5; --blue-pale: #E3F2FD; --blue-mid: #BBDEFB;
+  --blue-btn: #1A56A8; --text-dark: #1A237E; --text-gray: #90A4AE;
+  --white: #fff; --divider: #E8EDF3; --input-bg: #F4F7FA;
+  --success: #2E7D32; --success-bg: #E8F5E9; --success-mid: #A5D6A7;
+  --error: #C62828; --error-bg: #FFEBEE; --error-mid: #FFCDD2;
+  --warn: #E65100; --warn-bg: #FFF3E0;
+  --shadow-sm: 0 2px 8px rgba(21,101,192,.10);
+  --shadow-md: 0 8px 28px rgba(21,101,192,.14);
+  --shadow-lg: 0 20px 60px rgba(21,101,192,.18);
+  --radius: 16px; --radius-sm: 10px; --radius-xs: 8px;
+}
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(145deg, #B8D4F0 0%, #D6EAFF 50%, #C5DDF5 100%);
+  min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+
+/* ── PHONE SHELL ── */
+.phone {
+  width: 390px; min-height: 780px; background: var(--white); border-radius: 46px; overflow: hidden;
+  box-shadow: var(--shadow-lg), 0 2px 8px rgba(0,0,0,.06);
+  position: relative; display: flex; flex-direction: column;
+}
+.screen {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  background: var(--white); transition: transform .36s cubic-bezier(.55,0,.1,1), opacity .36s;
+  will-change: transform, opacity; overflow: hidden;
+}
+.screen.hidden         { transform: translateX(100%);  opacity: 0; pointer-events: none; }
+.screen.slide-out-left { transform: translateX(-28%);  opacity: 0; pointer-events: none; }
+.screen.active         { transform: translateX(0);     opacity: 1; }
+.content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; scrollbar-width: none; }
+.content::-webkit-scrollbar { display: none; }
+.footer { padding: 14px 20px 30px; flex-shrink: 0; border-top: 1px solid var(--divider); background: var(--white); }
+
+/* ── SHARED HEADER ── */
+.header {
+  background: linear-gradient(135deg, #E8F4FF 0%, #D6EAFF 100%);
+  padding: 20px 18px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--blue-mid); flex-shrink: 0;
+}
+.header-left { display: flex; align-items: center; gap: 10px; }
+.back-btn {
+  background: rgba(255,255,255,.7); border: 1px solid var(--blue-mid); cursor: pointer; color: var(--blue);
+  padding: 6px; border-radius: 50%; display: flex; align-items: center; transition: all .15s;
+}
+.back-btn:hover { background: var(--white); box-shadow: var(--shadow-sm); }
+.back-btn svg { width: 22px; height: 22px; }
+.header-title { font-size: 1.15rem; font-weight: 800; color: var(--text-dark); line-height: 1.2; }
+.sus-logo { display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
+.sus-logo .st { font-size: 1rem; font-weight: 900; color: var(--blue); letter-spacing: 1px; }
+.sus-logo svg { width: 28px; height: 28px; }
+.sus-cross { display:inline-block; }
+
+/* ── BUTTONS ── */
+.btn-primary {
+  width: 100%; padding: 16px; background: var(--blue-btn); color: var(--white);
+  border: none; border-radius: var(--radius); font-family: 'Nunito', sans-serif;
+  font-size: 1.05rem; font-weight: 800; cursor: pointer;
+  box-shadow: 0 6px 20px rgba(26,86,168,.30);
+  transition: background .15s, transform .1s, box-shadow .15s;
+  letter-spacing: .3px;
+}
+.btn-primary:hover { background: #154fa0; box-shadow: 0 8px 24px rgba(26,86,168,.38); transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(1px); box-shadow: 0 3px 12px rgba(26,86,168,.22); }
+.btn-primary:disabled { background: #90A4AE; cursor: not-allowed; box-shadow: none; transform: none; }
+.btn-outline {
+  width: 100%; padding: 13px; margin-top: 10px; background: transparent;
+  color: var(--blue); border: 1.5px solid var(--blue-mid); border-radius: var(--radius);
+  font-family: 'Nunito', sans-serif; font-size: .96rem; font-weight: 800;
+  cursor: pointer; transition: all .15s;
+}
+.btn-outline:hover { background: var(--blue-pale); border-color: var(--blue2); }
+
+/* ══════════════════════════════════
+   LOGIN GOV.BR
+══════════════════════════════════ */
+.login-wrap {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 36px 28px;
+}
+.govbr-logo { font-size: 2.8rem; font-weight: 900; margin-bottom: 6px; letter-spacing: -1px; }
+.govbr-logo .g,.govbr-logo .o,.govbr-logo .v { color: #1351B4; }
+.govbr-logo .dot { color: #FFCD07; }
+.govbr-logo .b { color: #168821; }
+.govbr-logo .r { color: #DB4800; }
+.login-subtitle { font-size: 1rem; font-weight: 700; color: #546E7A; margin-bottom: 32px; }
+
+/* Input group with validation */
+.field-group { width: 100%; margin-bottom: 16px; }
+.field-group label { display: block; font-size: .82rem; font-weight: 800; color: #455A64; margin-bottom: 6px; letter-spacing: .3px; }
+.input-wrap { position: relative; }
+.field-input {
+  width: 100%; background: var(--input-bg); border: 2px solid transparent;
+  border-radius: var(--radius-sm); padding: 14px 44px 14px 16px;
+  font-family: 'Nunito', sans-serif; font-size: .96rem; font-weight: 600; color: #263238;
+  outline: none; transition: all .2s;
+}
+.field-input::placeholder { color: #B0BEC5; font-weight: 600; }
+.field-input:focus { background: #EAF3FF; border-color: var(--blue2); box-shadow: 0 0 0 3px rgba(30,136,229,.12); }
+.field-input.valid   { border-color: var(--success); background: #F5FBF5; }
+.field-input.invalid { border-color: var(--error);   background: #FFF8F8; }
+.field-input.invalid:focus { box-shadow: 0 0 0 3px rgba(198,40,40,.10); }
+.input-icon {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  pointer-events: none; opacity: 0; transition: opacity .2s;
+}
+.input-icon svg { width: 18px; height: 18px; }
+.input-icon.show { opacity: 1; }
+.field-msg {
+  font-size: .76rem; font-weight: 700; margin-top: 5px; padding: 0 2px;
+  min-height: 18px; transition: all .2s; display: flex; align-items: center; gap: 4px;
+}
+.field-msg.error { color: var(--error); }
+.field-msg.success { color: var(--success); }
+.field-msg svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+/* Password toggle */
+.pwd-toggle {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; color: #90A4AE;
+  display: flex; align-items: center; transition: color .15s; padding: 2px;
+}
+.pwd-toggle:hover { color: var(--blue); }
+.pwd-toggle svg { width: 18px; height: 18px; }
+
+.login-btn {
+  width: 100%; padding: 16px; margin-top: 6px;
+  background: #1351B4; color: white; border: none; border-radius: var(--radius);
+  font-family: 'Nunito', sans-serif; font-size: 1.05rem; font-weight: 800;
+  cursor: pointer; box-shadow: 0 6px 20px rgba(19,81,180,.28); letter-spacing: .3px;
+  transition: all .15s; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.login-btn:hover { background: #0d3d8a; transform: translateY(-1px); }
+.login-btn:active { transform: translateY(1px); }
+.login-btn.loading { pointer-events: none; opacity: .8; }
+.spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,.35); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
+.login-btn.loading .spinner { display: block; }
+.login-btn.loading .btn-text { opacity: .7; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ══════════════════════════════════
+   DASHBOARD
+══════════════════════════════════ */
+.dash-navbar {
+  background: var(--white); padding: 13px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--divider); flex-shrink: 0;
+  box-shadow: 0 1px 0 var(--divider);
+}
+.dash-brand { display: flex; align-items: center; gap: 8px; }
+.dash-sus { display: flex; align-items: center; gap: 4px; font-size: .82rem; font-weight: 900; color: var(--blue); letter-spacing: 1px; }
+.dash-sus svg { width: 18px; height: 18px; }
+.dash-sep { width: 1.5px; height: 18px; background: var(--divider); }
+.dash-name { font-size: .9rem; font-weight: 800; color: var(--text-dark); }
+.dash-name span { font-weight: 500; color: #5C7A9E; }
+.dash-sairbtn {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--error-bg); color: var(--error); border: 1.5px solid var(--error-mid); border-radius: 20px;
+  padding: 7px 12px; font-family: 'Nunito', sans-serif; font-size: .74rem; font-weight: 800;
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.dash-sairbtn:hover { background: #FFCDD2; box-shadow: var(--shadow-sm); }
+.dash-sairbtn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+.dash-hero {
+  background: linear-gradient(160deg, #DAEEFF 0%, #EBF6FF 55%, #F4FAFF 100%);
+  padding: 20px 18px 18px;
+}
+.dash-hello { font-size: 1.36rem; font-weight: 900; color: var(--text-dark); margin-bottom: 3px; }
+.dash-hello span { color: var(--blue2); }
+.dash-sub { font-size: .76rem; font-weight: 700; color: #5C7A9E; line-height: 1.45; }
+.dash-search {
+  display: flex; align-items: center; background: white;
+  border-radius: 30px; padding: 4px 4px 4px 14px; margin-top: 14px;
+  box-shadow: 0 2px 12px rgba(21,101,192,.12); border: 1px solid rgba(21,101,192,.08);
+}
+.dash-search input {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-family: 'Nunito', sans-serif; font-size: .84rem; font-weight: 600; color: #37474F;
+}
+.dash-search input::placeholder { color: #B0BEC5; }
+.dash-search-btn {
+  background: #1A237E; color: white; border: none; border-radius: 24px;
+  padding: 9px 16px; font-family: 'Nunito', sans-serif; font-size: .8rem; font-weight: 800; cursor: pointer;
+  transition: background .15s;
+}
+.dash-search-btn:hover { background: #283593; }
+
+.svc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 14px 6px; }
+.svc-card {
+  background: white; border: 1.5px solid var(--blue-mid); border-radius: var(--radius);
+  padding: 14px 12px; cursor: pointer;
+  transition: transform .18s, box-shadow .18s, border-color .18s;
+  animation: cardIn .4s cubic-bezier(.22,.68,0,1.2) both;
+}
+.svc-card:nth-child(1){animation-delay:.06s}
+.svc-card:nth-child(2){animation-delay:.12s}
+.svc-card:nth-child(3){animation-delay:.18s}
+.svc-card:nth-child(4){animation-delay:.24s}
+.svc-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: #90CAF9; }
+.svc-ico { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
+.svc-ico svg { width: 22px; height: 22px; }
+.svc-ico.blue{background:#E3F2FD} .svc-ico.teal{background:#E0F7FA}
+.svc-ico.yellow{background:#FFF8E1} .svc-ico.purple{background:#EDE7F6}
+.svc-nm { font-size: .84rem; font-weight: 800; color: #1A1A2E; margin-bottom: 2px; }
+.svc-ds { font-size: .68rem; font-weight: 600; color: var(--text-gray); }
+.svc-btn {
+  display: inline-block; margin-top: 10px; padding: 6px 10px; border-radius: 20px;
+  font-size: .68rem; font-weight: 800; border: none; cursor: pointer;
+  transition: opacity .15s, transform .1s; pointer-events: none;
+}
+.svc-btn.blue{background:#1A237E;color:white} .svc-btn.teal{background:#00838F;color:white}
+.svc-btn.yellow{background:#E65100;color:white} .svc-btn.purple{background:#6A1B9A;color:white}
+
+.dash-links {
+  display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 14px 12px;
+  border-top: 1px solid var(--divider);
+}
+.dash-link {
+  font-size: .72rem; font-weight: 700; color: var(--blue2);
+  background: var(--blue-pale); border-radius: 20px; padding: 5px 11px;
+  cursor: pointer; transition: background .15s, transform .1s;
+}
+.dash-link:hover { background: var(--blue-mid); transform: translateY(-1px); }
+
+.news-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 14px 12px; }
+.news-card {
+  background: var(--blue-pale); border-radius: 14px; padding: 14px; cursor: pointer;
+  transition: transform .18s, box-shadow .18s;
+  animation: cardIn .4s .2s cubic-bezier(.22,.68,0,1.2) both;
+  border: 1px solid transparent;
+}
+.news-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); border-color: var(--blue-mid); }
+.news-tag { font-size: .64rem; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--blue); margin-bottom: 5px; }
+.news-title { font-size: .78rem; font-weight: 800; color: var(--text-dark); line-height: 1.35; margin-bottom: 5px; }
+.news-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: white; border-radius: 20px; padding: 4px 9px;
+  font-size: .65rem; font-weight: 700; color: var(--blue2);
+}
+.news-chip svg { width: 10px; height: 10px; }
+.news-cta { font-size: .7rem; font-weight: 700; color: var(--blue2); margin-top: 8px; display: block; }
+.dash-sec { padding: 12px 14px 4px; }
+.dash-sec-title { font-size: .94rem; font-weight: 900; color: var(--text-dark); }
+.dash-faq { padding: 12px 14px 20px; border-top: 1px solid var(--divider); }
+.faq-title { font-size: .94rem; font-weight: 900; color: var(--text-dark); margin-bottom: 10px; }
+.faq-item {
+  padding: 12px 0; border-bottom: 1px solid var(--divider);
+  font-size: .82rem; font-weight: 700; color: #455A64; cursor: pointer;
+  transition: color .15s; display: flex; justify-content: space-between; align-items: center;
+}
+.faq-item:hover { color: var(--blue); }
+.faq-item:last-child { border-bottom: none; }
+.faq-item::after { content: '›'; color: #B0BEC5; font-size: 1.1rem; }
+
+/* ══════════════════════════════════
+   CARTÃO SUS
+══════════════════════════════════ */
+.cartao-hero {
+  background: linear-gradient(145deg, #1565C0, #1E88E5);
+  padding: 28px 24px 24px; color: white; position: relative; overflow: hidden;
+}
+.cartao-hero::before {
+  content: ''; position: absolute; right: -30px; top: -30px;
+  width: 140px; height: 140px; border-radius: 50%;
+  background: rgba(255,255,255,.06);
+}
+.cartao-hero::after {
+  content: ''; position: absolute; right: 20px; bottom: -20px;
+  width: 80px; height: 80px; border-radius: 50%;
+  background: rgba(255,255,255,.04);
+}
+.cartao-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.15); border-radius: 20px;
+  padding: 5px 12px; font-size: .72rem; font-weight: 800;
+  letter-spacing: .4px; margin-bottom: 16px;
+}
+.cartao-chip svg { width: 14px; height: 14px; }
+.cartao-nome-label { font-size: .7rem; font-weight: 700; opacity: .7; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
+.cartao-nome-val { font-size: 1.3rem; font-weight: 900; margin-bottom: 12px; }
+.cartao-num-label { font-size: .7rem; font-weight: 700; opacity: .7; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
+.cartao-num-val { font-size: 1rem; font-weight: 800; letter-spacing: 2px; font-variant-numeric: tabular-nums; }
+
+.cartao-body { padding: 20px 22px; display: flex; flex-direction: column; gap: 0; }
+.cartao-field {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--divider);
+  animation: slideIn .35s cubic-bezier(.22,.68,0,1.2) both;
+}
+.cartao-field:nth-child(1){ animation-delay: .06s; }
+.cartao-field:nth-child(2){ animation-delay: .14s; }
+.cartao-field:nth-child(3){ animation-delay: .22s; border-bottom: none; }
+.cartao-label { font-size: .74rem; font-weight: 700; color: var(--text-gray); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; }
+.cartao-value { font-size: 1rem; font-weight: 800; color: #1A1A2E; }
+
+/* ══════════════════════════════════
+   VACINAS
+══════════════════════════════════ */
+.vac-summary {
+  display: flex; gap: 8px; padding: 14px 16px;
+  background: var(--input-bg); border-bottom: 1px solid var(--divider);
+}
+.vac-stat {
+  flex: 1; background: white; border-radius: var(--radius-sm); padding: 10px 8px; text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+.vac-stat-num { font-size: 1.3rem; font-weight: 900; }
+.vac-stat-num.ok { color: var(--success); }
+.vac-stat-num.pending { color: var(--error); }
+.vac-stat-num.partial { color: #E65100; }
+.vac-stat-lbl { font-size: .64rem; font-weight: 700; color: var(--text-gray); margin-top: 1px; }
+
+.vac-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 18px 20px; position: relative;
+  animation: slideIn .35s cubic-bezier(.22,.68,0,1.2) both;
+  transition: background .15s;
+}
+.vac-item:hover { background: #FAFCFF; }
+.vac-item:nth-child(1){animation-delay:.04s}
+.vac-item:nth-child(2){animation-delay:.1s}
+.vac-item:nth-child(3){animation-delay:.16s}
+.vac-item:nth-child(4){animation-delay:.22s}
+.vac-item + .vac-item::before {
+  content:''; position:absolute; top:0; left:20px; right:20px; height:1px; background:var(--divider);
+}
+.vac-badge {
+  width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+}
+.vac-badge.ok      { background: var(--success-bg); }
+.vac-badge.pending { background: var(--error-bg); }
+.vac-badge.partial { background: var(--warn-bg); }
+.vac-info { flex: 1; }
+.vac-name { font-size: .94rem; font-weight: 800; color: #1A1A2E; margin-bottom: 2px; }
+.vac-date { font-size: .74rem; font-weight: 600; color: var(--text-gray); }
+.vac-pill {
+  padding: 4px 10px; border-radius: 20px; font-size: .68rem; font-weight: 800; flex-shrink: 0;
+}
+.vac-pill.ok      { background: var(--success-bg); color: var(--success); }
+.vac-pill.pending { background: var(--error-bg); color: var(--error); }
+.vac-pill.partial { background: var(--warn-bg); color: var(--warn); }
+
+/* ══════════════════════════════════
+   POSTOS
+══════════════════════════════════ */
+.postos-search {
+  padding: 14px 16px; background: var(--input-bg); border-bottom: 1px solid var(--divider);
+}
+.postos-search-inner {
+  display: flex; align-items: center; background: white; border-radius: 30px;
+  padding: 3px 4px 3px 14px; border: 1.5px solid var(--divider);
+  transition: border-color .2s;
+}
+.postos-search-inner:focus-within { border-color: var(--blue2); box-shadow: 0 0 0 3px rgba(30,136,229,.1); }
+.postos-search-inner input {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-family: 'Nunito', sans-serif; font-size: .84rem; font-weight: 600; color: #37474F;
+}
+.postos-search-inner input::placeholder { color: #B0BEC5; }
+.postos-search-inner button {
+  background: var(--blue); color: white; border: none; border-radius: 24px;
+  padding: 8px 14px; font-family: 'Nunito', sans-serif; font-size: .78rem; font-weight: 800; cursor: pointer;
+}
+
+.facility-item {
+  display: flex; align-items: center; gap: 14px; padding: 16px 18px;
+  cursor: pointer; transition: background .15s; position: relative;
+  animation: slideIn .35s cubic-bezier(.22,.68,0,1.2) both;
+}
+.facility-item:nth-child(1){animation-delay:.06s}
+.facility-item:nth-child(2){animation-delay:.14s}
+.facility-item:nth-child(3){animation-delay:.22s}
+.facility-item:hover { background: var(--blue-pale); }
+.facility-item + .facility-item::before {
+  content:''; position:absolute; top:0; left:18px; right:18px; height:1px; background:var(--divider);
+}
+.fac-icon {
+  width: 50px; height: 50px; border-radius: 14px;
+  background: #EEF6FF; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; box-shadow: var(--shadow-sm);
+}
+.fac-icon svg { width: 28px; height: 28px; }
+.fac-info { flex: 1; }
+.fac-name { font-size: 1rem; font-weight: 800; color: #1A1A2E; margin-bottom: 2px; }
+.fac-addr { font-size: .78rem; font-weight: 600; color: var(--text-gray); }
+.fac-badge {
+  font-size: .64rem; font-weight: 800; padding: 3px 8px; border-radius: 20px; margin-top: 4px;
+  display: inline-block;
+}
+.fac-badge.open  { background: var(--success-bg); color: var(--success); }
+.fac-badge.h24   { background: #E3F2FD; color: #1565C0; }
+.fac-chev { color: #CFD8DC; }
+.fac-chev svg { width: 18px; height: 18px; }
+
+/* ══════════════════════════════════
+   DETAIL
+══════════════════════════════════ */
+.detail-banner {
+  background: linear-gradient(135deg, #1565C0, #1976D2); padding: 24px 22px; color: white;
+  position: relative; overflow: hidden;
+}
+.detail-banner::before {
+  content: ''; position: absolute; right: -20px; top: -20px;
+  width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,.06);
+}
+.detail-banner-icon {
+  width: 58px; height: 58px; border-radius: 16px;
+  background: rgba(255,255,255,.18); display: flex; align-items: center; justify-content: center; margin-bottom: 10px;
+}
+.detail-banner-icon svg { width: 32px; height: 32px; }
+.detail-banner-name { font-size: 1.26rem; font-weight: 900; margin-bottom: 3px; }
+.detail-banner-addr { font-size: .82rem; font-weight: 600; opacity: .82; }
+.detail-row {
+  display: flex; align-items: center; gap: 14px; padding: 15px 20px;
+  border-bottom: 1px solid var(--divider);
+  animation: slideIn .32s cubic-bezier(.22,.68,0,1.2) both;
+}
+.detail-row:nth-child(1){animation-delay:.05s}
+.detail-row:nth-child(2){animation-delay:.11s}
+.detail-row:nth-child(3){animation-delay:.17s}
+.dr-icon { color: var(--blue2); flex-shrink: 0; }
+.dr-icon svg { width: 20px; height: 20px; }
+.dr-label { font-size: .7rem; font-weight: 700; color: var(--text-gray); text-transform: uppercase; letter-spacing: .4px; }
+.dr-value { font-size: .92rem; font-weight: 700; color: #1A1A2E; margin-top: 2px; }
+
+/* ══════════════════════════════════
+   FORM AGENDAMENTO
+══════════════════════════════════ */
+.form-header-bar {
+  background: linear-gradient(135deg,#1E88E5,#1565C0);
+  padding: 18px 20px; color: white; display: flex; align-items: center; gap: 12px;
+  flex-shrink: 0;
+}
+.cal-circle {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: rgba(255,255,255,.2);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.cal-circle svg { width: 24px; height: 24px; }
+.form-header-title { font-size: 1.05rem; font-weight: 800; line-height: 1.3; }
+.form-header-sub { font-size: .74rem; font-weight: 600; opacity: .8; }
+
+.form-section { padding: 18px 20px 14px; }
+.form-section + .form-section { border-top: 1px solid var(--divider); }
+.form-label-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.form-label-row svg { width: 20px; height: 20px; color: var(--blue2); }
+.form-label-row span { font-size: 1rem; font-weight: 800; color: #1A1A2E; }
+.form-input {
+  width: 100%; background: var(--input-bg); border: 2px solid transparent;
+  border-radius: var(--radius-sm); padding: 14px 16px;
+  font-family: 'Nunito', sans-serif; font-size: .94rem; font-weight: 600; color: #263238;
+  outline: none; transition: all .2s; display: block;
+}
+.form-input::placeholder { color: #B0BEC5; }
+.form-input:focus { background: #EAF3FF; border-color: var(--blue2); box-shadow: 0 0 0 3px rgba(30,136,229,.10); }
+.form-input.valid   { border-color: var(--success); background: #F5FBF5; }
+.form-input.invalid { border-color: var(--error);   background: #FFF8F8; }
+.form-input.invalid:focus { box-shadow: 0 0 0 3px rgba(198,40,40,.08); }
+.form-error {
+  display: flex; align-items: center; gap: 5px;
+  font-size: .74rem; font-weight: 700; color: var(--error);
+  margin-top: 6px; min-height: 20px; transition: all .2s;
+}
+.form-error svg { width: 13px; height: 13px; flex-shrink: 0; }
+.form-hint {
+  font-size: .72rem; font-weight: 600; color: var(--text-gray);
+  margin-top: 5px;
+}
+
+/* char counter */
+.char-count { font-size: .72rem; font-weight: 700; color: var(--text-gray); text-align: right; margin-top: 4px; }
+.char-count.warn { color: var(--error); }
+
+/* date picker row */
+.date-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.date-part-wrap { display: flex; flex-direction: column; }
+.date-part-label { font-size: .7rem; font-weight: 700; color: #78909C; margin-bottom: 4px; text-align: center; }
+.date-part-input {
+  text-align: center; padding: 12px 6px;
+  background: var(--input-bg); border: 2px solid transparent; border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif; font-size: .96rem; font-weight: 700; color: #263238;
+  outline: none; transition: all .2s; width: 100%;
+}
+.date-part-input::placeholder { color: #B0BEC5; font-size: .84rem; }
+.date-part-input:focus { background: #EAF3FF; border-color: var(--blue2); box-shadow: 0 0 0 3px rgba(30,136,229,.10); }
+.date-part-input.valid   { border-color: var(--success); background: #F5FBF5; }
+.date-part-input.invalid { border-color: var(--error);   background: #FFF8F8; }
+
+/* especialidade select */
+.form-select {
+  width: 100%; background: var(--input-bg); border: 2px solid transparent;
+  border-radius: var(--radius-sm); padding: 14px 16px;
+  font-family: 'Nunito', sans-serif; font-size: .94rem; font-weight: 600; color: #263238;
+  outline: none; transition: all .2s; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2390A4AE' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center;
+  background-size: 16px; padding-right: 40px; cursor: pointer;
+}
+.form-select:focus { background-color: #EAF3FF; border-color: var(--blue2); box-shadow: 0 0 0 3px rgba(30,136,229,.10); }
+.form-select.valid { border-color: var(--success); background-color: #F5FBF5; }
+.form-select.invalid { border-color: var(--error); background-color: #FFF8F8; }
+
+/* progress bar */
+.form-progress { padding: 10px 20px 0; display: flex; align-items: center; gap: 8px; }
+.progress-bar { flex: 1; height: 4px; background: var(--divider); border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--blue2)); border-radius: 4px; transition: width .4s ease; }
+.progress-label { font-size: .72rem; font-weight: 700; color: var(--text-gray); white-space: nowrap; }
+
+/* ══════════════════════════════════
+   SUCCESS
+══════════════════════════════════ */
+.success-wrap {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 32px 24px; text-align: center;
+}
+.success-circle {
+  width: 96px; height: 96px; border-radius: 50%;
+  background: linear-gradient(135deg, #43A047, #2E7D32);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 10px 32px rgba(46,125,50,.28); margin-bottom: 22px;
+  animation: popIn .5s .1s cubic-bezier(.22,.68,0,1.2) both;
+}
+.success-circle svg { width: 48px; height: 48px; }
+.success-title { font-size: 1.38rem; font-weight: 900; color: var(--text-dark); margin-bottom: 8px; animation: fadeUp .4s .3s both; }
+.success-msg { font-size: .84rem; font-weight: 600; color: #78909C; line-height: 1.55; animation: fadeUp .4s .4s both; }
+.success-card {
+  background: linear-gradient(135deg,#E8F5FD,#EAF5FF); border-radius: var(--radius);
+  padding: 16px 18px; width: 100%; margin-top: 22px; text-align: left;
+  animation: fadeUp .4s .5s both; border: 1px solid var(--blue-mid);
+}
+.success-card-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.success-card-row:last-child { margin-bottom: 0; }
+.sc-label { font-size: .7rem; font-weight: 700; color: var(--text-gray); text-transform: uppercase; letter-spacing: .4px; }
+.sc-val   { font-size: .9rem; font-weight: 800; color: var(--text-dark); text-align: right; max-width: 60%; }
+
+/* ══════════════════════════════════
+   MODAL SAIR
+══════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(10,20,40,.5);
+  display: flex; align-items: flex-end; justify-content: center;
+  z-index: 9998; opacity: 0; pointer-events: none;
+  transition: opacity .25s;
+}
+.modal-overlay.show { opacity: 1; pointer-events: all; }
+.modal-box {
+  background: white; border-radius: 28px 28px 0 0; padding: 28px 24px 36px;
+  width: 100%; max-width: 390px; text-align: center;
+  transform: translateY(100%); transition: transform .3s cubic-bezier(.22,.68,0,1.2);
+}
+.modal-overlay.show .modal-box { transform: translateY(0); }
+.modal-handle { width: 36px; height: 4px; background: var(--divider); border-radius: 4px; margin: 0 auto 20px; }
+.modal-icon {
+  width: 60px; height: 60px; border-radius: 50%;
+  background: var(--error-bg); display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 14px;
+}
+.modal-icon svg { width: 28px; height: 28px; }
+.modal-title { font-size: 1.18rem; font-weight: 900; color: #1A1A2E; margin-bottom: 8px; }
+.modal-msg { font-size: .84rem; font-weight: 600; color: #78909C; margin-bottom: 22px; line-height: 1.5; }
+.modal-actions { display: flex; gap: 10px; }
+.modal-btn-cancel {
+  flex: 1; padding: 14px; background: var(--input-bg); color: #455A64;
+  border: none; border-radius: var(--radius); font-family: 'Nunito', sans-serif;
+  font-size: .94rem; font-weight: 800; cursor: pointer; transition: background .15s;
+}
+.modal-btn-cancel:hover { background: #E0E5EC; }
+.modal-btn-sair {
+  flex: 1; padding: 14px; background: var(--error); color: white;
+  border: none; border-radius: var(--radius); font-family: 'Nunito', sans-serif;
+  font-size: .94rem; font-weight: 800; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(198,40,40,.28); transition: all .15s;
+}
+.modal-btn-sair:hover { background: #b71c1c; }
+
+/* ══════════════════════════════════
+   TOAST
+══════════════════════════════════ */
+.toast {
+  position: fixed; bottom: 32px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  color: #fff; padding: 12px 22px 12px 16px; border-radius: 14px;
+  font-family: 'Nunito', sans-serif; font-weight: 700; font-size: .86rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,.2);
+  transition: transform .3s cubic-bezier(.22,.68,0,1.2), opacity .3s;
+  opacity: 0; pointer-events: none; z-index: 9999;
+  display: flex; align-items: center; gap: 8px; max-width: 320px;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.error   { background: #C62828; }
+.toast.success { background: #2E7D32; }
+.toast.info    { background: #1565C0; }
+.toast svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+/* ══════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════ */
+@keyframes cardIn  { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+@keyframes slideIn { from{opacity:0;transform:translateX(-12px)} to{opacity:1;transform:translateX(0)} }
+@keyframes fadeUp  { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+@keyframes popIn   { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+@keyframes shake   { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+.shake { animation: shake .4s ease; }
+</style>
+</head>
+<body>
+<div class="phone">
+
+<!-- ══ 1. LOGIN ══ -->
+<div class="screen active" id="s-login">
+  <div class="content" style="justify-content:center;">
+    <div class="login-wrap">
+      <div class="govbr-logo"><span class="g">g</span><span class="o">o</span><span class="v">v</span><span class="dot">.</span><span class="b">b</span><span class="r">r</span></div>
+      <div class="login-subtitle">Acesse com sua conta gov.br</div>
+
+      <div class="field-group" style="width:100%">
+        <label for="cpf">CPF</label>
+        <div class="input-wrap">
+          <input class="field-input" id="cpf" type="text" placeholder="000.000.000-00" maxlength="14" inputmode="numeric" autocomplete="off"/>
+          <span class="input-icon" id="cpf-icon"></span>
+        </div>
+        <div class="field-msg" id="cpf-msg"></div>
+      </div>
+
+      <div class="field-group" style="width:100%">
+        <label for="senha">Senha</label>
+        <div class="input-wrap">
+          <input class="field-input" id="senha" type="password" placeholder="Mínimo 6 caracteres" style="padding-right:44px"/>
+          <button class="pwd-toggle" id="pwd-toggle" type="button" onclick="togglePwd()">
+            <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="field-msg" id="senha-msg"></div>
+      </div>
+
+      <button class="login-btn" id="login-btn" onclick="doLogin()">
+        <div class="spinner"></div>
+        <span class="btn-text">Entrar</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 2. DASHBOARD ══ -->
+<div class="screen hidden" id="s-dash">
+  <div class="dash-navbar">
+    <div class="dash-brand">
+      <div class="dash-sus">
+        <svg viewBox="0 0 40 40" fill="none"><rect x="14" y="4" width="12" height="32" rx="3" fill="#1565C0"/><rect x="4" y="14" width="32" height="12" rx="3" fill="#1565C0"/><rect x="16" y="6" width="8" height="28" rx="2" fill="#1E88E5"/><rect x="6" y="16" width="28" height="8" rx="2" fill="#1E88E5"/></svg>
+        SUS
+      </div>
+      <div class="dash-sep"></div>
+      <div class="dash-name">Meu <span>SUS</span> Digital</div>
+    </div>
+    <button class="dash-sairbtn" onclick="openModalSair()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sair
+    </button>
+  </div>
+  <div class="content">
+    <div class="dash-hero">
+      <div class="dash-hello">Olá, <span id="dash-user-name">Usuário</span>!</div>
+      <div class="dash-sub">Acesse rapidamente os serviços e informações do Meu SUS Digital</div>
+      <div class="dash-search">
+        <input type="text" id="dash-search-input" placeholder="O que você deseja encontrar no SUS?"/>
+        <button class="dash-search-btn" onclick="doSearch()">Buscar</button>
+      </div>
+    </div>
+    <div class="svc-grid">
+      <div class="svc-card" onclick="go('s-cartao')">
+        <div class="svc-ico blue"><svg viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2.5" fill="#BBDEFB" stroke="#1565C0" stroke-width="1.5"/><rect x="2" y="9" width="20" height="3" fill="#1565C0" opacity=".35"/><rect x="5" y="14" width="6" height="1.5" rx=".75" fill="#1565C0"/></svg></div>
+        <div class="svc-nm">Cartão SUS</div>
+        <div class="svc-ds">Acesse seu cartão SUS</div>
+        <button class="svc-btn blue">Acessar ›</button>
+      </div>
+      <div class="svc-card" onclick="go('s-vacinas')">
+        <div class="svc-ico teal"><svg viewBox="0 0 24 24" fill="none"><path d="M18 2l4 4-1.5 1.5-4-4L18 2z" fill="#00838F"/><path d="M14.5 5.5l4 4-9 9-2-1-1 3-3-3 3-1-1-2 9-9z" fill="#B2EBF2" stroke="#00838F" stroke-width="1.2"/><line x1="2" y1="22" x2="6" y2="18" stroke="#00838F" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+        <div class="svc-nm">Vacinas</div>
+        <div class="svc-ds">Histórico completo</div>
+        <button class="svc-btn teal">Acessar ›</button>
+      </div>
+      <div class="svc-card" onclick="go('s-agendar-direto')">
+        <div class="svc-ico yellow"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="17" rx="2.5" fill="#FFF8E1" stroke="#E65100" stroke-width="1.5"/><rect x="3" y="9" width="18" height="2" fill="#E65100" opacity=".4"/><rect x="7" y="2" width="2" height="4" rx="1" fill="#E65100"/><rect x="15" y="2" width="2" height="4" rx="1" fill="#E65100"/><rect x="7" y="13" width="3" height="3" rx=".5" fill="#E65100"/><rect x="11" y="13" width="3" height="3" rx=".5" fill="#E65100"/><rect x="15" y="13" width="3" height="3" rx=".5" fill="#E65100"/></svg></div>
+        <div class="svc-nm">Consultas</div>
+        <div class="svc-ds">Agende e acompanhe</div>
+        <button class="svc-btn yellow">Agendar ›</button>
+      </div>
+      <div class="svc-card" onclick="go('s-postos')">
+        <div class="svc-ico purple"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="10" r="3" fill="#6A1B9A"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#EDE7F6" stroke="#6A1B9A" stroke-width="1.5"/></svg></div>
+        <div class="svc-nm">Posto de Saúde</div>
+        <div class="svc-ds">Encontre unidades</div>
+        <button class="svc-btn purple">Buscar ›</button>
+      </div>
+    </div>
+    <div class="dash-links">
+      <div class="dash-link">Validar Certidão</div>
+      <div class="dash-link">Rede de Saúde</div>
+      <div class="dash-link">Fale com o SUS</div>
+      <div class="dash-link">Conteúdos</div>
+      <div class="dash-link">Sobre o SUS</div>
+      <div class="dash-link">Termos de Uso</div>
+    </div>
+    <div class="dash-sec"><div class="dash-sec-title">Últimas Notícias</div></div>
+    <div class="news-grid">
+      <div class="news-card">
+        <div class="news-tag">Campanha Nacional</div>
+        <div class="news-title">Vacinação Contra a Gripe 2026</div>
+        <div style="font-size:.7rem;font-weight:600;color:#5C7A9E;margin-top:4px;line-height:1.4">Saiba onde se vacinar gratuitamente na sua cidade</div>
+        <span class="news-cta">Saiba mais →</span>
+      </div>
+      <div class="news-card" style="background:#E8F5E9;border-color:#A5D6A7">
+        <div class="news-tag" style="color:#2E7D32">Campanha Ativa</div>
+        <div class="news-title" style="color:#1B5E20">Campanha de Vacinação</div>
+        <div class="news-chip" style="margin-top:6px;color:#388E3C;background:white;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#388E3C" stroke-width="2.2"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+          Até 30 de Maio
+        </div>
+        <div style="font-size:.7rem;font-weight:600;color:#388E3C;margin-top:5px;">Gripe e sarampo</div>
+      </div>
+    </div>
+    <div class="dash-faq">
+      <div class="faq-title">Dúvidas Frequentes</div>
+      <div class="faq-item">Como agendar uma consulta pelo SUS?</div>
+      <div class="faq-item">Como acessar o cartão SUS digital?</div>
+      <div class="faq-item">Como verificar meu histórico de vacinas?</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 3. CARTÃO SUS ══ -->
+<div class="screen hidden" id="s-cartao">
+  <div class="header">
+    <div class="header-left">
+      <button class="back-btn" onclick="go('s-dash')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <span class="header-title">Cartão SUS</span>
+    </div>
+    <div class="sus-logo"><span class="st">SUS</span><svg viewBox="0 0 40 40" fill="none"><rect x="14" y="4" width="12" height="32" rx="3" fill="#1565C0"/><rect x="4" y="14" width="32" height="12" rx="3" fill="#1565C0"/><rect x="16" y="6" width="8" height="28" rx="2" fill="#1E88E5"/><rect x="6" y="16" width="28" height="8" rx="2" fill="#1E88E5"/></svg></div>
+  </div>
+  <div class="content">
+    <div class="cartao-hero">
+      <div class="cartao-chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        Cartão Nacional de Saúde
+      </div>
+      <div class="cartao-nome-label">Nome do Beneficiário</div>
+      <div class="cartao-nome-val">João da Silva</div>
+      <div class="cartao-num-label">Número do SUS</div>
+      <div class="cartao-num-val">123 4567 8912 3456</div>
+    </div>
+    <div class="cartao-body">
+      <div class="cartao-field">
+        <div class="cartao-label">Data de Nascimento</div>
+        <div class="cartao-value">15/08/1990</div>
+      </div>
+      <div class="cartao-field">
+        <div class="cartao-label">Município de Cadastro</div>
+        <div class="cartao-value">São Paulo – SP</div>
+      </div>
+      <div class="cartao-field">
+        <div class="cartao-label">Unidade de Saúde</div>
+        <div class="cartao-value">UBS Central – Zona Leste</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><button class="btn-primary" onclick="go('s-dash')">Voltar ao Início</button></div>
+</div>
+
+<!-- ══ 4. VACINAS ══ -->
+<div class="screen hidden" id="s-vacinas">
+  <div class="header">
+    <div class="header-left">
+      <button class="back-btn" onclick="go('s-dash')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <span class="header-title">Histórico de Vacinas</span>
+    </div>
+    <div class="sus-logo"><span class="st">SUS</span><svg viewBox="0 0 40 40" fill="none"><rect x="14" y="4" width="12" height="32" rx="3" fill="#1565C0"/><rect x="4" y="14" width="32" height="12" rx="3" fill="#1565C0"/><rect x="16" y="6" width="8" height="28" rx="2" fill="#1E88E5"/><rect x="6" y="16" width="28" height="8" rx="2" fill="#1E88E5"/></svg></div>
+  </div>
+  <div class="content">
+    <div class="vac-summary">
+      <div class="vac-stat"><div class="vac-stat-num ok">2</div><div class="vac-stat-lbl">Em dia</div></div>
+      <div class="vac-stat"><div class="vac-stat-num pending">1</div><div class="vac-stat-lbl">Pendente</div></div>
+      <div class="vac-stat"><div class="vac-stat-num partial">1</div><div class="vac-stat-lbl">Incompleta</div></div>
+    </div>
+    <div class="vac-item">
+      <div class="vac-badge ok">💉</div>
+      <div class="vac-info">
+        <div class="vac-name">COVID-19</div>
+        <div class="vac-date">Última dose: 12/03/2024</div>
+      </div>
+      <div class="vac-pill ok">Em dia</div>
+    </div>
+    <div class="vac-item">
+      <div class="vac-badge pending">⚠️</div>
+      <div class="vac-info">
+        <div class="vac-name">Febre Amarela</div>
+        <div class="vac-date">Recomendado atualizar</div>
+      </div>
+      <div class="vac-pill pending">Pendente</div>
+    </div>
+    <div class="vac-item">
+      <div class="vac-badge ok">💉</div>
+      <div class="vac-info">
+        <div class="vac-name">Influenza</div>
+        <div class="vac-date">Última dose: 20/04/2025</div>
+      </div>
+      <div class="vac-pill ok">Em dia</div>
+    </div>
+    <div class="vac-item">
+      <div class="vac-badge partial">⏳</div>
+      <div class="vac-info">
+        <div class="vac-name">Hepatite B</div>
+        <div class="vac-date">2 de 3 doses aplicadas</div>
+      </div>
+      <div class="vac-pill partial">Incompleta</div>
+    </div>
+  </div>
+  <div class="footer"><button class="btn-primary" onclick="go('s-dash')">Voltar ao Início</button></div>
+</div>
+
+<!-- ══ 5. POSTOS ══ -->
+<div class="screen hidden" id="s-postos">
+  <div class="header">
+    <div class="header-left">
+      <button class="back-btn" onclick="go('s-dash')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <span class="header-title">Postos de Saúde</span>
+    </div>
+    <div class="sus-logo"><span class="st">SUS</span><svg viewBox="0 0 40 40" fill="none"><rect x="14" y="4" width="12" height="32" rx="3" fill="#1565C0"/><rect x="4" y="14" width="32" height="12" rx="3" fill="#1565C0"/><rect x="16" y="6" width="8" height="28" rx="2" fill="#1E88E5"/><rect x="6" y="16" width="28" height="8" rx="2" fill="#1E88E5"/></svg></div>
+  </div>
+  <div class="content">
+    <div class="postos-search">
+      <div class="postos-search-inner">
+        <input type="text" placeholder="Buscar por nome ou endereço…" id="postos-search"/>
+        <button onclick="filterPostos()">Buscar</button>
+      </div>
+    </div>
+    <div id="postos-list">
+      <div class="facility-item" onclick="selectFacility('UBS Central','Rua das Flores, 123 – Centro','Seg–Sex 07h–17h','(11) 3000-0001','open')">
+        <div class="fac-icon"><svg viewBox="0 0 40 40" fill="none"><rect x="6" y="14" width="28" height="22" rx="2" fill="#BBDEFB" stroke="#1565C0" stroke-width="1.5"/><rect x="3" y="14" width="34" height="3" rx="1.5" fill="#1565C0"/><rect x="15" y="22" width="10" height="14" rx="1" fill="#1E88E5" opacity=".8"/><rect x="9" y="18" width="5" height="4" rx="1" fill="#90CAF9"/><rect x="26" y="18" width="5" height="4" rx="1" fill="#90CAF9"/><circle cx="20" cy="9" r="4" fill="#1565C0"/><rect x="19" y="6.5" width="2" height="5" rx="1" fill="white"/><rect x="17.5" y="8" width="5" height="2" rx="1" fill="white"/></svg></div>
+        <div class="fac-info"><div class="fac-name">UBS Central</div><div class="fac-addr">Rua das Flores, 123 – Centro</div><span class="fac-badge open">Aberto agora</span></div>
+        <div class="fac-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+      <div class="facility-item" onclick="selectFacility('Clínica Santa Vida','Av. Paulista, 456 – Bela Vista','Seg–Sáb 06h–22h','(11) 3000-0002','open')">
+        <div class="fac-icon"><svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="16" fill="#BBDEFB"/><rect x="15" y="11" width="10" height="18" rx="2" fill="#1E88E5"/><rect x="11" y="15" width="18" height="10" rx="2" fill="#64B5F6"/><rect x="17" y="7" width="6" height="6" rx="1" fill="#90CAF9"/></svg></div>
+        <div class="fac-info"><div class="fac-name">Clínica Santa Vida</div><div class="fac-addr">Av. Paulista, 456 – Bela Vista</div><span class="fac-badge open">Aberto agora</span></div>
+        <div class="fac-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+      <div class="facility-item" onclick="selectFacility('UPA 24h Norte','Rua dos Pinheiros, 789 – Pinheiros','24 horas / 7 dias','(11) 3000-0003','h24')">
+        <div class="fac-icon"><svg viewBox="0 0 40 40" fill="none"><rect x="4" y="10" width="32" height="24" rx="3" fill="#FFCDD2" stroke="#C62828" stroke-width="1.5"/><rect x="18" y="14" width="4" height="16" rx="1.5" fill="#E53935"/><rect x="12" y="20" width="16" height="4" rx="1.5" fill="#E53935"/></svg></div>
+        <div class="fac-info"><div class="fac-name">UPA 24h Norte</div><div class="fac-addr">Rua dos Pinheiros, 789 – Pinheiros</div><span class="fac-badge h24">24 horas</span></div>
+        <div class="fac-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><button class="btn-primary" onclick="go('s-dash')">Voltar ao Início</button></div>
+</div>
+
+<!-- ══ 6. DETAIL ══ -->
+<div class="screen hidden" id="s-detail">
+  <div class="header">
+    <div class="header-left">
+      <button class="back-btn" onclick="go('s-postos')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <span class="header-title">Detalhes</span>
+    </div>
+    <div class="sus-logo"><span class="st">SUS</span><svg viewBox="0 0 40 40" fill="none"><rect x="14" y="4" width="12" height="32" rx="3" fill="#1565C0"/><rect x="4" y="14" width="32" height="12" rx="3" fill="#1565C0"/><rect x="16" y="6" width="8" height="28" rx="2" fill="#1E88E5"/><rect x="6" y="16" width="28" height="8" rx="2" fill="#1E88E5"/></svg></div>
+  </div>
+  <div class="content">
+    <div class="detail-banner">
+      <div class="detail-banner-icon"><svg viewBox="0 0 40 40" fill="none"><rect x="6" y="14" width="28" height="22" rx="2" fill="rgba(255,255,255,.25)"/><rect x="18" y="18" width="4" height="12" rx="1.5" fill="white"/><rect x="14" y="22" width="12" height="4" rx="1.5" fill="white"/></svg></div>
+      <div class="detail-banner-name" id="detail-name">—</div>
+      <div class="detail-banner-addr" id="detail-addr">—</div>
+    </div>
+    <div>
+      <div class="detail-row">
+        <div class="dr-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div><div class="dr-label">Horário de Funcionamento</div><div class="dr-value" id="detail-hours">—</div></div>
+      </div>
+      <div class="detail-row">
+        <div class="dr-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.08 1.18 2 2 0 012.08 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.18 6.18l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div>
+        <div><div class="dr-label">Telefone</div><div class="dr-value" id="detail-phone">—</div></div>
+      </div>
+      <div class="detail-row">
+        <div class="dr-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <div><div class="dr-label">Endereço</div><div class="dr-value" id="detail-addr2">—</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <button class="btn-primary" onclick="go('s-agendar')">Agendar Consulta aqui</button>
+    <button class="btn-outline" onclick="go('s-postos')">Voltar à Lista</button>
+  </div>
+</div>
+
+<!-- ══ 7. AGENDAR (via posto) ══ -->
+<div class="screen hidden" id="s-agendar">
+  <div class="form-header-bar">
+    <div class="cal-circle"><svg viewBox="0 0 28 28" fill="none"><rect x="2" y="5" width="24" height="20" rx="2.5" stroke="white" stroke-width="1.8"/><rect x="2" y="11" width="24" height="1.8" fill="white"/><rect x="7" y="2" width="2" height="5" rx="1" fill="white"/><rect x="19" y="2" width="2" height="5" rx="1" fill="white"/></svg></div>
+    <div><div class="form-header-title">Agendamento de Consulta</div><div class="form-header-sub" id="form-a-local">Unidade selecionada</div></div>
+  </div>
+  <div class="form-progress"><div class="progress-bar"><div class="progress-fill" id="prog-a" style="width:0%"></div></div><div class="progress-label" id="prog-a-lbl">0%</div></div>
+  <div class="content">
+    <div class="form-section">
+      <div class="form-label-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M3 21v-1a8 8 0 0116 0v1"/></svg><span>Nome completo</span></div>
+      <input class="form-input" type="text" id="nome-a" placeholder="Digite seu nome completo" autocomplete="off" oninput="validateNome('a')" onblur="validateNome('a',true)"/>
+      <div class="form-error" id="nome-a-err" style="visibility:hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span></span></div>
+    </div>
+    <div class="form-section">
+      <div class="form-label-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg><span>Data da consulta</span></div>
+      <div class="date-row">
+        <div class="date-part-wrap"><div class="date-part-label">Dia</div><input class="date-part-input" id="dia-a" placeholder="DD" maxlength="2" inputmode="numeric" oninput="onDatePart(this,'mes-a','a')" onblur="validateDate('a',true)"/></div>
+        <div class="date-part-wrap"><div class="date-part-label">Mês</div><input class="date-part-input" id="mes-a" placeholder="MM" maxlength="2" inputmode="numeric" oninput="onDatePart(this,'ano-a','a')" onblur="validateDate('a',true)"/></div>
+        <div class="date-part-wrap"><div class="date-part-label">Ano</div><input class="date-part-input" id="ano-a" placeholder="AAAA" maxlength="4" inputmode="numeric" oninput="onDatePartYear('a')" onblur="validateDate('a',true)"/></div>
+      </div>
+      <div class="form-error" id="date-a-err" style="visibility:hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span></span></div>
+    </div>
+    <div class="form-section">
+      <div class="form-label-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Especialidade</span></div>
+      <select class="form-select" id="espec-a" onchange="validateEspec('a')" onblur="validateEspec('a')">
+        <option value="">Selecione a especialidade…</option>
+        <option>Clínica Geral</option><option>Pediatria</option><option>Ginecologia</option>
+        <option>Cardiologia</option><option>Ortopedia</option><option>Dermatologia</option>
+        <option>Oftalmologia</option><option>Neurologia</option><option>Psiquiatria</option>
+      </select>
+      <div class="form-error" id="espec-a-err" style="visibility:hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span></span></div>
+    </div>
+  </div>
+  <div class="footer"><button class="btn-primary" id="btn-agendar-a" onclick="confirmar('a')">Confirmar Agendamento</button></div>
+</div>
+
+<!-- ══ 8. AGENDAR DIRETO ══ -->
+<div class="screen hidden" id="s-agendar-direto">
+  <div class="form-header-bar">
+    <div class="cal-circle"><svg viewBox="0 0 28 28" fill="none"><rect x="2" y="5" width="24" height="20" rx="2.5" stroke="white" stroke-width="1.8"/><rect x="2" y="11" width="24" height="1.8" fill="white"/><rect x="7" y="2" width="2" height="5" rx="1" fill="white"/><rect x="19" y="2" width="2" height="5" rx="1" fill="white"/></svg></div>
+    <div><div class="form-header-title">Agendamento de Consulta</div><div class="form-header-sub">Preencha os dados abaixo</div></div>
+  </div>
+  <div class="form-progress"><div class="progress-bar"><div class="progress-fill" id="prog-d" style="width:0%"></div></div><div class="progress-label" id="prog-d-lbl">0%</div></div>
+  <div class="content">
+    <div class="form-section">
+      <div class="form-label-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M3 21v-1a8 8 0 0116 0v1"/></svg><span>Nome completo</span></div>
+      <input class="form-input" type="text" id="nome-d" placeholder="Digite seu nome completo" autocomplete="off" oninput="validateNome('d')" onblur="validateNome('d',true)"/>
+      <div class="form-error" id="nome-d-err" style="visibility:hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span></span></div>
+    </div>
+    <div class="form-section">
+      <div class="form-label-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg><span>Data da consulta</span></div>
+      <div class="date-row">
+        <div class="date-part-wrap"><div class="date-part-label">Dia</div><input class="date-part-input" id="dia-d" placeholder="DD" maxlength="2" inputmode="numeric" oninput="onDatePart(this,'mes-d','d')" onblur="validateDate('d',true)"/></div>
+        <div class="date-part-wrap"><div class="date-part-label">Mês</div><input class="date-part-input" id="mes-d" placeholder="MM" maxlength="2" inputmode="numeric" oninput="onDatePart(this,'ano-d','d')" onblur="validateDate('d',true)"/></div>
+        <div class="date-part-wrap"><div class="date-part-label">Ano</div><input class="date-part-input" id="ano-d" placeholder="AAAA" maxlength="4" inputmode="numeric" oninput="onDatePartYear('d')" onblur="validateDate('d',true)"/></div>
+      </div>
+      <div class="form-error" id="date-d-err" style="visibility:hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span></span></div>
+    </div>
+    <div class="form-section">
+      <div class="form-label-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Especialidade</span></div>
+      <select class="form-select" id="espec-d" onchange="validateEspec('d')" onblur="validateEspec('d')">
+        <option value="">Selecione a especialidade…</option>
+        <option>Clínica Geral</option><option>Pediatria</option><option>Ginecologia</option>
+        <option>Cardiologia</option><option>Ortopedia</option><option>Dermatologia</option>
+        <option>Oftalmologia</option><option>Neurologia</option><option>Psiquiatria</option>
+      </select>
+      <div class="form-error" id="espec-d-err" style="visibility:hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span></span></div>
+    </div>
+  </div>
+  <div class="footer"><button class="btn-primary" id="btn-agendar-d" onclick="confirmar('d')">Confirmar Agendamento</button></div>
+</div>
+
+<!-- ══ 9. SUCCESS ══ -->
+<div class="screen hidden" id="s-success">
+  <div class="header">
+    <div class="header-left"><span class="header-title">Agendamento Confirmado</span></div>
+    <div class="sus-logo"><span class="st">SUS</span><svg viewBox="0 0 40 40" fill="none"><rect x="14" y="4" width="12" height="32" rx="3" fill="#1565C0"/><rect x="4" y="14" width="32" height="12" rx="3" fill="#1565C0"/><rect x="16" y="6" width="8" height="28" rx="2" fill="#1E88E5"/><rect x="6" y="16" width="28" height="8" rx="2" fill="#1E88E5"/></svg></div>
+  </div>
+  <div class="content">
+    <div class="success-wrap">
+      <div class="success-circle"><svg viewBox="0 0 56 56" fill="none"><polyline points="12,28 24,40 44,18" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="success-title">Agendado com sucesso!</div>
+      <div class="success-msg">Seu atendimento foi confirmado.<br>Compareça com documento de identidade e cartão SUS.</div>
+      <div class="success-card">
+        <div class="success-card-row"><span class="sc-label">Paciente</span><span class="sc-val" id="s-nome">—</span></div>
+        <div class="success-card-row"><span class="sc-label">Data</span><span class="sc-val" id="s-data">—</span></div>
+        <div class="success-card-row"><span class="sc-label">Especialidade</span><span class="sc-val" id="s-espec">—</span></div>
+        <div class="success-card-row"><span class="sc-label">Local</span><span class="sc-val" id="s-local">—</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><button class="btn-primary" onclick="go('s-dash');resetForms()">Voltar ao Início</button></div>
+</div>
+
+</div><!-- /phone -->
+
+<!-- MODAL SAIR -->
+<div class="modal-overlay" id="modal-sair" onclick="if(event.target===this)closeModalSair()">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-icon"><svg viewBox="0 0 32 32" fill="none" stroke="#C62828" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 28H6a2 2 0 01-2-2V6a2 2 0 012-2h6"/><polyline points="21 22 28 16 21 10"/><line x1="28" y1="16" x2="12" y2="16"/></svg></div>
+    <div class="modal-title">Sair da conta?</div>
+    <div class="modal-msg">Tem certeza que deseja sair do Meu SUS Digital? Você precisará fazer login novamente.</div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeModalSair()">Cancelar</button>
+      <button class="modal-btn-sair" onclick="doLogout()">Confirmar saída</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg id="toast-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></svg><span id="toast-msg"></span></div>
+
+<script>
+/* ══════════════════════════════════
+   NAVIGATION
+══════════════════════════════════ */
+const ORDER = ['s-login','s-dash','s-cartao','s-vacinas','s-postos','s-detail','s-agendar','s-agendar-direto','s-success'];
+let currentFacility = { name: 'A definir', local: 'A definir' };
+
+function go(target) {
+  const cur = document.querySelector('.screen.active');
+  if (!cur || cur.id === target) return;
+  const ci = ORDER.indexOf(cur.id), ti = ORDER.indexOf(target);
+  cur.classList.remove('active');
+  cur.classList.add(ti >= ci ? 'slide-out-left' : 'hidden');
+  const nxt = document.getElementById(target);
+  nxt.classList.remove('hidden','slide-out-left');
+  void nxt.offsetWidth;
+  nxt.classList.add('active');
+  setTimeout(() => { cur.classList.remove('slide-out-left'); cur.classList.add('hidden'); }, 380);
+}
+
+/* ══════════════════════════════════
+   CPF VALIDATION
+══════════════════════════════════ */
+function isValidCPF(raw) {
+  const d = raw.replace(/\D/g,'');
+  if (d.length !== 11 || /^(\d)\1{10}$/.test(d)) return false;
+  let s = 0;
+  for (let i = 0; i < 9; i++) s += +d[i] * (10 - i);
+  let r = (s * 10) % 11;
+  if (r === 10 || r === 11) r = 0;
+  if (r !== +d[9]) return false;
+  s = 0;
+  for (let i = 0; i < 10; i++) s += +d[i] * (11 - i);
+  r = (s * 10) % 11;
+  if (r === 10 || r === 11) r = 0;
+  return r === +d[10];
+}
+
+document.getElementById('cpf').addEventListener('input', function() {
+  let v = this.value.replace(/\D/g,'');
+  if (v.length > 3) v = v.slice(0,3)+'.'+v.slice(3);
+  if (v.length > 7) v = v.slice(0,7)+'.'+v.slice(7);
+  if (v.length > 11) v = v.slice(0,11)+'-'+v.slice(11);
+  this.value = v.slice(0,14);
+  validateCPF();
+});
+
+document.getElementById('cpf').addEventListener('blur', () => validateCPF(true));
+document.getElementById('senha').addEventListener('input', () => validateSenha());
+document.getElementById('senha').addEventListener('blur', () => validateSenha(true));
+
+function validateCPF(force = false) {
+  const el = document.getElementById('cpf');
+  const msg = document.getElementById('cpf-msg');
+  const ico = document.getElementById('cpf-icon');
+  const raw = el.value.replace(/\D/g,'');
+  if (!raw) { clearField(el,msg,ico); return false; }
+  if (raw.length < 11) {
+    if (force) { setError(el, msg, ico, 'CPF incompleto — digite os 11 dígitos'); }
+    else clearField(el,msg,ico);
+    return false;
+  }
+  if (!isValidCPF(raw)) {
+    setError(el, msg, ico, 'CPF inválido — verifique os números'); return false;
+  }
+  setSuccess(el, msg, ico, 'CPF válido'); return true;
+}
+
+function validateSenha(force = false) {
+  const el = document.getElementById('senha');
+  const msg = document.getElementById('senha-msg');
+  const v = el.value;
+  if (!v) { clearField(el,msg,null); return false; }
+  if (v.length < 6) {
+    if (force) setError(el, msg, null, 'Senha muito curta — mínimo 6 caracteres');
+    else clearField(el,msg,null);
+    return false;
+  }
+  setSuccess(el, msg, null, 'Senha aceita'); return true;
+}
+
+function setError(el, msgEl, ico, txt) {
+  el.classList.remove('valid'); el.classList.add('invalid');
+  msgEl.className = 'field-msg error';
+  msgEl.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>${txt}`;
+  if (ico) { ico.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`; ico.classList.add('show'); }
+}
+function setSuccess(el, msgEl, ico, txt) {
+  el.classList.remove('invalid'); el.classList.add('valid');
+  msgEl.className = 'field-msg success';
+  msgEl.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>${txt}`;
+  if (ico) { ico.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`; ico.classList.add('show'); }
+}
+function clearField(el, msgEl, ico) {
+  el.classList.remove('valid','invalid'); msgEl.className='field-msg'; msgEl.innerHTML='';
+  if (ico) { ico.innerHTML=''; ico.classList.remove('show'); }
+}
+
+function togglePwd() {
+  const i = document.getElementById('senha');
+  const btn = document.getElementById('pwd-toggle');
+  const showing = i.type === 'text';
+  i.type = showing ? 'password' : 'text';
+  btn.innerHTML = showing
+    ? `<svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M1 1l22 22"/></svg>`;
+}
+
+/* ══════════════════════════════════
+   LOGIN
+══════════════════════════════════ */
+async function doLogin() {
+  const cpfOk = validateCPF(true);
+  const pwOk  = validateSenha(true);
+  if (!cpfOk || !pwOk) {
+    document.querySelector('.login-wrap').classList.add('shake');
+    setTimeout(() => document.querySelector('.login-wrap').classList.remove('shake'), 420);
+    showToast('error','<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>','Corrija os campos em vermelho');
+    return;
+  }
+  const btn = document.getElementById('login-btn');
+  btn.classList.add('loading'); btn.querySelector('.btn-text').textContent = 'Entrando…';
+
+  const cpf   = document.getElementById('cpf').value;
+  const senha = document.getElementById('senha').value;
+
+  try {
+    const resp = await fetch('http://localhost:8080/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cpf, senha })
+    });
+    const data = await resp.json();
+
+    btn.classList.remove('loading'); btn.querySelector('.btn-text').textContent = 'Entrar';
+
+    if (resp.ok && data.sucesso) {
+      const u = data.usuario;
+      // Preenche dashboard
+      document.getElementById('dash-user-name').textContent = u.nome ? u.nome.split(' ')[0] : 'Usuário';
+      // Preenche cartão SUS com dados da API
+      preencherCartao(u);
+      // Carrega vacinas e postos
+      await carregarVacinas();
+      await carregarPostos();
+      go('s-dash');
+      showToast('success','<polyline points="20 6 9 17 4 12"/>','Login realizado com sucesso!');
+    } else {
+      document.querySelector('.login-wrap').classList.add('shake');
+      setTimeout(() => document.querySelector('.login-wrap').classList.remove('shake'), 420);
+      showToast('error','<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>',data.mensagem || 'CPF ou senha inválidos');
+    }
+  } catch (err) {
+    btn.classList.remove('loading'); btn.querySelector('.btn-text').textContent = 'Entrar';
+    showToast('error','<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>','Erro ao conectar com o servidor');
+    console.error('Erro no login:', err);
+  }
+}
+
+function preencherCartao(u) {
+  const nomeEl = document.querySelector('.cartao-nome-val');
+  const numEl  = document.querySelector('.cartao-num-val');
+  const vals   = document.querySelectorAll('.cartao-value');
+  if (nomeEl) nomeEl.textContent = u.nome || '—';
+  if (numEl)  numEl.textContent  = u.numerocartaoSus || '—';
+  if (vals[0]) vals[0].textContent = u.dataNascimento    || '—';
+  if (vals[1]) vals[1].textContent = u.municipioCadastro || '—';
+  if (vals[2]) vals[2].textContent = u.unidadeSaude      || '—';
+}
+
+async function carregarVacinas() {
+  try {
+    const [vacsResp, resumoResp] = await Promise.all([
+      fetch('http://localhost:8080/api/vacinas'),
+      fetch('http://localhost:8080/api/vacinas/resumo')
+    ]);
+    const vacinas = await vacsResp.json();
+    const resumo  = await resumoResp.json();
+
+    // Atualiza contadores
+    const nums = document.querySelectorAll('.vac-stat-num');
+    if (nums[0]) nums[0].textContent = resumo.emDia      ?? 0;
+    if (nums[1]) nums[1].textContent = resumo.pendentes  ?? 0;
+    if (nums[2]) nums[2].textContent = resumo.incompletas?? 0;
+
+    // Renderiza lista de vacinas
+    const lista = document.querySelector('#s-vacinas .content');
+    const summary = lista.querySelector('.vac-summary');
+    // Remove itens antigos
+    lista.querySelectorAll('.vac-item').forEach(el => el.remove());
+
+    vacinas.forEach(v => {
+      const statusClass = v.status === 'EM_DIA' ? 'ok' : v.status === 'PENDENTE' ? 'pending' : 'partial';
+      const emoji = v.status === 'EM_DIA' ? '💉' : v.status === 'PENDENTE' ? '⚠️' : '⏳';
+      const descStatus = v.status === 'EM_DIA' ? 'Em dia' : v.status === 'PENDENTE' ? 'Pendente' : 'Incompleta';
+      const dateLabel  = v.status === 'PENDENTE' ? v.ultimaDose : 'Última dose: ' + v.ultimaDose;
+
+      const item = document.createElement('div');
+      item.className = 'vac-item';
+      item.innerHTML = `
+        <div class="vac-badge ${statusClass}">${emoji}</div>
+        <div class="vac-info">
+          <div class="vac-name">${v.nome}</div>
+          <div class="vac-date">${dateLabel}</div>
+        </div>
+        <div class="vac-pill ${statusClass}">${descStatus}</div>`;
+      lista.appendChild(item);
+    });
+  } catch(err) {
+    console.error('Erro ao carregar vacinas:', err);
+  }
+}
+
+async function carregarPostos() {
+  try {
+    const resp   = await fetch('http://localhost:8080/api/postos');
+    const postos = await resp.json();
+    renderPostos(postos);
+  } catch(err) {
+    console.error('Erro ao carregar postos:', err);
+  }
+}
+
+function renderPostos(postos) {
+  const lista = document.getElementById('postos-list');
+  lista.innerHTML = '';
+  postos.forEach(p => {
+    const badge = p.aberto24h ? 'open' : 'open';
+    const tipo  = p.tipo || 'UBS';
+    const item  = document.createElement('div');
+    item.className = 'facility-item';
+    item.onclick = () => selectFacility(p.nome, p.endereco, p.horario, p.telefone, p.aberto24h ? 'open' : 'open');
+    item.innerHTML = `
+      <div class="fac-icon">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" fill="#E3F2FD" stroke="#1565C0" stroke-width="1.5"/><polyline points="9 22 9 12 15 12 15 22" stroke="#1565C0" stroke-width="1.5"/></svg>
+      </div>
+      <div class="fac-info">
+        <div class="fac-name">${p.nome}</div>
+        <div class="fac-addr">${p.endereco}</div>
+      </div>
+      <div class="fac-badge ${p.aberto24h ? 'open' : 'open'}">${p.aberto24h ? '24h' : 'Aberto'}</div>`;
+    lista.appendChild(item);
+  });
+}
+
+/* ══════════════════════════════════
+   LOGOUT
+══════════════════════════════════ */
+function openModalSair() { document.getElementById('modal-sair').classList.add('show'); }
+function closeModalSair() { document.getElementById('modal-sair').classList.remove('show'); }
+async function doLogout() {
+  closeModalSair();
+  try { await fetch('http://localhost:8080/api/auth/logout', { method: 'POST' }); } catch(e) {}
+  ['cpf','senha'].forEach(id => { const e = document.getElementById(id); e.value=''; clearField(e, document.getElementById(id+'-msg'), document.getElementById(id+'-icon')); });
+  resetForms();
+  go('s-login');
+  showToast('info','<path d="M9 21H5a2 2 0 01-2-2V5"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>','Sessão encerrada com segurança');
+}
+
+/* ══════════════════════════════════
+   DATE VALIDATION
+══════════════════════════════════ */
+const DAYS_IN_MONTH = [0,31,28,31,30,31,30,31,31,30,31,30,31];
+function isLeapYear(y) { return (y%4===0&&y%100!==0)||y%400===0; }
+function maxDays(m,y) { return m===2 ? (isLeapYear(y)?29:28) : DAYS_IN_MONTH[m]; }
+
+function onDatePart(el, nextId, src) {
+  el.value = el.value.replace(/\D/g,'');
+  if (el.value.length === 2) document.getElementById(nextId).focus();
+  updateDateProgress(src);
+}
+function onDatePartYear(src) {
+  const el = document.getElementById('ano-'+src);
+  el.value = el.value.replace(/\D/g,'');
+  if (el.value.length === 4) validateDate(src, true);
+  else updateDateProgress(src);
+}
+
+function validateDate(src, force = false) {
+  const dEl = document.getElementById('dia-'+src);
+  const mEl = document.getElementById('mes-'+src);
+  const yEl = document.getElementById('ano-'+src);
+  const errEl = document.getElementById('date-'+src+'-err');
+
+  const dv = dEl.value.trim(), mv = mEl.value.trim(), yv = yEl.value.trim();
+  const allEmpty = !dv && !mv && !yv;
+  if (allEmpty) { clearDateFields(src); return false; }
+
+  const d = parseInt(dv,10), m = parseInt(mv,10), y = parseInt(yv,10);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const nowYear = today.getFullYear();
+
+  let err = null;
+
+  if (!dv || !mv || !yv) { if (force) err = 'Preencha dia, mês e ano'; else { updateDateProgress(src); return false; } }
+  else if (isNaN(d)||isNaN(m)||isNaN(y)) { err = 'Data inválida'; }
+  else if (m < 1 || m > 12) { err = `Mês inválido — deve ser entre 01 e 12`; }
+  else if (d < 1 || d > maxDays(m,y)) { err = `Dia inválido — ${String(m).padStart(2,'0')}/${y} tem no máximo ${maxDays(m,y)} dias`; }
+  else if (y < nowYear) { err = 'Data no passado — escolha uma data futura'; }
+  else if (y > nowYear + 1) { err = `Ano muito distante — máximo ${nowYear+1}`; }
+  else {
+    const chosen = new Date(y,m-1,d);
+    if (chosen <= today) { err = 'Escolha uma data a partir de amanhã'; }
+  }
+
+  if (err) {
+    showDateError(src, err, dEl, mEl, yEl, errEl); return false;
+  }
+
+  // Valid
+  [dEl,mEl,yEl].forEach(e => { e.classList.remove('invalid'); e.classList.add('valid'); });
+  errEl.style.visibility = 'hidden'; errEl.querySelector('span').textContent = '';
+  updateDateProgress(src); return true;
+}
+
+function showDateError(src, msg, dEl, mEl, yEl, errEl) {
+  [dEl,mEl,yEl].forEach(e => { e.classList.remove('valid'); e.classList.add('invalid'); });
+  errEl.style.visibility = 'visible'; errEl.querySelector('span').textContent = msg;
+  updateDateProgress(src);
+}
+function clearDateFields(src) {
+  ['dia-','mes-','ano-'].forEach(p => {
+    const e = document.getElementById(p+src);
+    e.classList.remove('valid','invalid');
+  });
+  const errEl = document.getElementById('date-'+src+'-err');
+  errEl.style.visibility = 'hidden'; errEl.querySelector('span').textContent='';
+  updateDateProgress(src);
+}
+
+/* ══════════════════════════════════
+   FORM VALIDATION (nome + espec)
+══════════════════════════════════ */
+function validateNome(src, force = false) {
+  const el = document.getElementById('nome-'+src);
+  const errEl = document.getElementById('nome-'+src+'-err');
+  const v = el.value.trim();
+  if (!v) { clearFormField(el,errEl); updateDateProgress(src); return false; }
+  const words = v.split(/\s+/).filter(Boolean);
+  if (words.length < 2) {
+    if (force) showFormError(el, errEl, 'Digite nome e sobrenome');
+    else clearFormField(el,errEl);
+    updateDateProgress(src); return false;
+  }
+  if (v.length < 5) {
+    if (force) showFormError(el, errEl, 'Nome muito curto');
+    else clearFormField(el,errEl);
+    updateDateProgress(src); return false;
+  }
+  if (/\d/.test(v)) { showFormError(el, errEl, 'Nome não pode conter números'); updateDateProgress(src); return false; }
+  el.classList.remove('invalid'); el.classList.add('valid');
+  errEl.style.visibility='hidden'; errEl.querySelector('span').textContent='';
+  updateDateProgress(src); return true;
+}
+
+function validateEspec(src) {
+  const el = document.getElementById('espec-'+src);
+  const errEl = document.getElementById('espec-'+src+'-err');
+  if (!el.value) { showFormError(el,errEl,'Selecione uma especialidade'); updateDateProgress(src); return false; }
+  el.classList.remove('invalid'); el.classList.add('valid');
+  errEl.style.visibility='hidden'; errEl.querySelector('span').textContent='';
+  updateDateProgress(src); return true;
+}
+
+function showFormError(el, errEl, msg) {
+  el.classList.remove('valid'); el.classList.add('invalid');
+  errEl.style.visibility='visible'; errEl.querySelector('span').textContent=msg;
+}
+function clearFormField(el, errEl) {
+  el.classList.remove('valid','invalid');
+  errEl.style.visibility='hidden'; errEl.querySelector('span').textContent='';
+}
+
+/* ══════════════════════════════════
+   PROGRESS BAR
+══════════════════════════════════ */
+function updateDateProgress(src) {
+  let filled = 0;
+  if (document.getElementById('nome-'+src).classList.contains('valid')) filled++;
+  const dateValid = document.getElementById('dia-'+src).classList.contains('valid');
+  if (dateValid) filled++;
+  if (document.getElementById('espec-'+src) && document.getElementById('espec-'+src).classList.contains('valid')) filled++;
+  const pct = Math.round((filled/3)*100);
+  document.getElementById('prog-'+src).style.width = pct+'%';
+  document.getElementById('prog-'+src+'-lbl').textContent = pct+'%';
+}
+
+/* ══════════════════════════════════
+   CONFIRM AGENDAMENTO
+══════════════════════════════════ */
+async function confirmar(src) {
+  const nomeOk  = validateNome(src, true);
+  const dateOk  = validateDate(src, true);
+  const especOk = validateEspec(src);
+
+  if (!nomeOk || !dateOk || !especOk) {
+    const btn = document.getElementById('btn-agendar-'+src);
+    btn.classList.add('shake');
+    setTimeout(() => btn.classList.remove('shake'), 420);
+    showToast('error','<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>','Corrija os campos antes de continuar');
+    return;
+  }
+
+  const nome  = document.getElementById('nome-'+src).value.trim();
+  const dia   = document.getElementById('dia-'+src).value.padStart(2,'0');
+  const mes   = document.getElementById('mes-'+src).value.padStart(2,'0');
+  const ano   = document.getElementById('ano-'+src).value;
+  const espec = document.getElementById('espec-'+src).value;
+  const local = src === 'a' ? currentFacility.name : '';
+  const data  = `${dia}/${mes}/${ano}`;
+
+  try {
+    const body = { nomePaciente: nome, data, especialidade: espec };
+    if (local) body.local = local;
+
+    const resp = await fetch('http://localhost:8080/api/consultas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const result = await resp.json();
+
+    if (resp.ok && result.sucesso) {
+      const c = result.consulta;
+      document.getElementById('s-nome').textContent  = c.nomePaciente;
+      document.getElementById('s-data').textContent  = c.data;
+      document.getElementById('s-espec').textContent = c.especialidade;
+      document.getElementById('s-local').textContent = c.localAtendimento;
+      go('s-success');
+      showToast('success','<polyline points="20 6 9 17 4 12"/>','Consulta agendada com sucesso!');
+    } else {
+      showToast('error','<circle cx="12" cy="12" r="10"/>',result.mensagem || 'Erro ao agendar');
+    }
+  } catch(err) {
+    // Fallback local se API não estiver disponível
+    document.getElementById('s-nome').textContent  = nome;
+    document.getElementById('s-data').textContent  = data;
+    document.getElementById('s-espec').textContent = espec;
+    document.getElementById('s-local').textContent = local || 'A definir';
+    go('s-success');
+    showToast('success','<polyline points="20 6 9 17 4 12"/>','Consulta agendada com sucesso!');
+    console.error('API indisponível, operação local:', err);
+  }
+}
+
+/* ══════════════════════════════════
+   POSTOS
+══════════════════════════════════ */
+function selectFacility(name, addr, hours, phone) {
+  currentFacility = { name };
+  document.getElementById('detail-name').textContent  = name;
+  document.getElementById('detail-addr').textContent  = addr;
+  document.getElementById('detail-addr2').textContent = addr;
+  document.getElementById('detail-hours').textContent = hours;
+  document.getElementById('detail-phone').textContent = phone;
+  document.getElementById('form-a-local').textContent = name;
+  go('s-detail');
+}
+
+async function filterPostos() {
+  const q = document.getElementById('postos-search').value.toLowerCase().trim();
+  try {
+    const url = q ? `http://localhost:8080/api/postos?busca=${encodeURIComponent(q)}` : 'http://localhost:8080/api/postos';
+    const resp = await fetch(url);
+    const postos = await resp.json();
+    renderPostos(postos);
+  } catch(err) {
+    // Fallback: filtra localmente
+    document.querySelectorAll('#postos-list .facility-item').forEach(item => {
+      const txt = item.querySelector('.fac-name').textContent.toLowerCase()
+                + item.querySelector('.fac-addr').textContent.toLowerCase();
+      item.style.display = (!q || txt.includes(q)) ? '' : 'none';
+    });
+  }
+}
+document.getElementById('postos-search').addEventListener('input', filterPostos);
+document.getElementById('postos-search').addEventListener('keydown', e => { if (e.key==='Enter') filterPostos(); });
+
+/* ══════════════════════════════════
+   SEARCH
+══════════════════════════════════ */
+function doSearch() {
+  const q = document.getElementById('dash-search-input').value.trim();
+  if (!q) { showToast('error','<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>','Digite algo para buscar'); return; }
+  showToast('info','<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',`Buscando por "${q}"…`);
+}
+document.getElementById('dash-search-input').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });
+
+/* ══════════════════════════════════
+   RESET & TOAST
+══════════════════════════════════ */
+function resetForms() {
+  ['a','d'].forEach(src => {
+    ['nome-','dia-','mes-','ano-'].forEach(p => {
+      const e = document.getElementById(p+src); if(e) e.value='';
+    });
+    const esp = document.getElementById('espec-'+src); if(esp) esp.value='';
+    ['nome-','date-','espec-'].forEach(p => {
+      const e = document.getElementById(p+src+'-err');
+      if(e){ e.style.visibility='hidden'; e.querySelector('span').textContent=''; }
+    });
+    ['nome-','dia-','mes-','ano-','espec-'].forEach(p => {
+      const e = document.getElementById(p+src); if(e){ e.classList.remove('valid','invalid'); }
+    });
+    const pb = document.getElementById('prog-'+src); if(pb) pb.style.width='0%';
+    const pl = document.getElementById('prog-'+src+'-lbl'); if(pl) pl.textContent='0%';
+  });
+}
+
+let toastTimer = null;
+function showToast(type, iconPath, msg) {
+  const t = document.getElementById('toast');
+  const ti = document.getElementById('toast-icon');
+  const tm = document.getElementById('toast-msg');
+  t.className = `toast ${type}`;
+  ti.innerHTML = iconPath;
+  tm.textContent = msg;
+  t.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
